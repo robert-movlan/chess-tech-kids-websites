@@ -111,15 +111,14 @@ def page(title, heading, message, items, color):
     """
 
 
-# SECTION 4: Create the moving chess game page.
+# SECTION 4: Create the chess IQ puzzle page.
 # This function returns one full HTML page with CSS and JavaScript inside it.
 def chess_game():
     """
-    Build a fast little game called Knight Dash.
+    Build a smart puzzle game called Chess IQ Lab.
 
-    The player moves the knight with arrow keys, collects stars for points,
-    and avoids moving pawns. This is not full chess yet. It is a playful first
-    step that teaches kids the idea of a board, pieces, score, and events.
+    Kids click a piece, then click where it should move. The app checks the
+    answer, gives hints, and explains the chess idea behind the best move.
     """
 
     return """
@@ -127,18 +126,18 @@ def chess_game():
     <html>
       <head>
         <meta charset="utf-8">
-        <title>Knight Dash</title>
+        <title>Chess IQ Lab</title>
         <style>
           body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f7f4ec;
-            color: #202020;
+            background: #f4f0e6;
+            color: #1f2523;
           }
           header {
-            background: #2f6f4e;
+            background: #26483f;
             color: white;
-            padding: 18px;
+            padding: 18px 14px;
             text-align: center;
           }
           nav a {
@@ -147,13 +146,19 @@ def chess_game():
             margin: 0 8px;
           }
           main {
-            max-width: 760px;
+            max-width: 980px;
             margin: 18px auto;
             padding: 0 16px;
           }
+          .layout {
+            display: grid;
+            grid-template-columns: minmax(280px, 560px) minmax(250px, 1fr);
+            gap: 18px;
+            align-items: start;
+          }
           .scoreboard {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-bottom: 12px;
             font-weight: bold;
@@ -163,15 +168,33 @@ def chess_game():
             border: 2px solid #202020;
             border-radius: 8px;
             padding: 10px;
-            flex: 1;
             text-align: center;
+          }
+          .panel {
+            background: white;
+            border: 2px solid #202020;
+            border-radius: 8px;
+            padding: 14px;
+          }
+          .panel h2 {
+            margin: 0 0 8px;
+            font-size: 22px;
+          }
+          .tag {
+            display: inline-block;
+            background: #e7f0ec;
+            border: 1px solid #26483f;
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-weight: bold;
+            margin-bottom: 8px;
           }
           #board {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
             width: min(92vw, 560px);
             aspect-ratio: 1;
-            margin: 0 auto;
+            margin: 0;
             border: 4px solid #202020;
           }
           .square {
@@ -180,228 +203,361 @@ def chess_game():
             font-size: clamp(20px, 7vw, 44px);
             font-weight: bold;
             user-select: none;
+            position: relative;
+            cursor: pointer;
           }
           .light {
-            background: #f0d9b5;
+            background: #f1d9b5;
           }
           .dark {
-            background: #b58863;
+            background: #9f704d;
           }
-          .knight {
-            color: #183a7a;
-            text-shadow: 0 2px white;
+          .selected {
+            outline: 4px solid #1b61d1;
+            outline-offset: -4px;
           }
-          .pawn {
-            color: #7a1d1d;
+          .target {
+            box-shadow: inset 0 0 0 5px #e0a400;
           }
-          .star {
-            color: #d49a00;
+          .last {
+            box-shadow: inset 0 0 0 5px #2b8a3e;
+          }
+          .white-piece {
+            color: #fdfdfd;
+            text-shadow: 0 2px 2px #111;
+          }
+          .black-piece {
+            color: #121212;
+            text-shadow: 0 1px 1px white;
+          }
+          .coords {
+            bottom: 3px;
+            font-size: 10px;
+            left: 4px;
+            opacity: 0.65;
+            position: absolute;
           }
           .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 58px);
+            display: flex;
+            flex-wrap: wrap;
             gap: 8px;
-            justify-content: center;
             margin: 14px 0;
           }
           button {
-            height: 48px;
+            min-height: 42px;
             border: 2px solid #202020;
             border-radius: 8px;
             background: white;
-            font-size: 22px;
+            padding: 8px 12px;
+            font-size: 15px;
             font-weight: bold;
+            cursor: pointer;
           }
-          .wide {
-            grid-column: span 3;
-            width: 100%;
+          button.primary {
+            background: #26483f;
+            color: white;
+          }
+          #moveText {
+            font-family: Consolas, monospace;
+            font-size: 20px;
+            font-weight: bold;
           }
           #message {
-            text-align: center;
+            background: #fff8d7;
+            border: 2px solid #9f704d;
+            border-radius: 8px;
             font-weight: bold;
             min-height: 24px;
+            padding: 10px;
+          }
+          #explain {
+            line-height: 1.45;
+          }
+          .meter {
+            background: #ddd2bd;
+            border: 2px solid #202020;
+            border-radius: 8px;
+            height: 18px;
+            overflow: hidden;
+          }
+          #meterFill {
+            background: #2b8a3e;
+            height: 100%;
+            width: 0%;
+          }
+          @media (max-width: 820px) {
+            .layout {
+              grid-template-columns: 1fr;
+            }
+            #board {
+              margin: 0 auto;
+            }
           }
         </style>
       </head>
       <body>
         <header>
-          <h1>Knight Dash</h1>
+          <h1>Chess IQ Lab</h1>
           <nav>
-            <a href="/chess">Chess Game</a>
+            <a href="/chess">Chess IQ Lab</a>
             <a href="/tech">Tech Site</a>
           </nav>
         </header>
 
         <main>
           <div class="scoreboard">
-            <div>Score: <span id="score">0</span></div>
-            <div>Lives: <span id="lives">3</span></div>
-            <div>Speed: <span id="speed">1</span></div>
+            <div>IQ Points: <span id="score">0</span></div>
+            <div>Streak: <span id="streak">0</span></div>
+            <div>Puzzle: <span id="level">1</span>/5</div>
           </div>
 
-          <div id="board"></div>
+          <div class="layout">
+            <div id="board"></div>
 
-          <div class="controls">
-            <span></span>
-            <button onclick="moveKnight(0, -1)">^</button>
-            <span></span>
-            <button onclick="moveKnight(-1, 0)">&lt;</button>
-            <button onclick="newGame()">Go</button>
-            <button onclick="moveKnight(1, 0)">&gt;</button>
-            <span></span>
-            <button onclick="moveKnight(0, 1)">v</button>
-            <span></span>
-            <button class="wide" onclick="newGame()">New Game</button>
+            <section class="panel">
+              <span class="tag" id="pattern">Pattern</span>
+              <h2 id="title">Find the best move</h2>
+              <p id="story"></p>
+              <p>Selected move: <span id="moveText">none</span></p>
+              <div class="meter"><div id="meterFill"></div></div>
+              <div class="controls">
+                <button class="primary" onclick="checkAnswer()">Check Move</button>
+                <button onclick="showHint()">Hint</button>
+                <button onclick="showAnswer()">Show Answer</button>
+                <button onclick="nextPuzzle()">Next Puzzle</button>
+                <button onclick="resetLab()">Restart Lab</button>
+              </div>
+              <p id="message">Click a piece, then click its best square.</p>
+              <p id="explain"></p>
+            </section>
           </div>
-
-          <p id="message">Collect stars. Dodge the pawns.</p>
         </main>
 
         <script>
-          // SECTION A: These variables remember the game state.
+          // SECTION A: These variables connect JavaScript to HTML boxes.
           const board = document.getElementById("board");
           const scoreText = document.getElementById("score");
-          const livesText = document.getElementById("lives");
-          const speedText = document.getElementById("speed");
+          const streakText = document.getElementById("streak");
+          const levelText = document.getElementById("level");
+          const titleText = document.getElementById("title");
+          const storyText = document.getElementById("story");
+          const patternText = document.getElementById("pattern");
+          const moveText = document.getElementById("moveText");
           const message = document.getElementById("message");
-          const size = 8;
+          const explain = document.getElementById("explain");
+          const meterFill = document.getElementById("meterFill");
 
-          let knight;
-          let star;
-          let pawns;
-          let score;
-          let lives;
-          let speed;
-          let timer;
+          // SECTION B: These puzzles are the brain of the game.
+          // Uppercase pieces are White. Lowercase pieces are Black.
+          const puzzles = [
+            {
+              title: "White to move: win the queen",
+              pattern: "Fork",
+              story: "A knight can attack two important pieces at once. Which knight jump attacks the black king and queen?",
+              hint: "Knights move in an L shape. Look for a square that attacks e8 and d7.",
+              answer: "f7d6",
+              explain: "Nf7-d6+ is a fork. The knight checks the king on e8 and attacks the queen on d7, so White wins material.",
+              pieces: { e1: "K", f7: "N", a1: "R", e8: "k", d7: "q", a8: "r" }
+            },
+            {
+              title: "White to move: mate in one",
+              pattern: "Checkmate",
+              story: "The black king is trapped. Find the queen move that gives checkmate.",
+              hint: "The queen wants to stand next to the king on h7, protected by the white king line and bishop.",
+              answer: "h5h7",
+              explain: "Qh5-h7# attacks the king. The king cannot capture the queen or escape, so it is checkmate.",
+              pieces: { g1: "K", h5: "Q", c2: "B", h8: "k", g7: "p", f7: "p" }
+            },
+            {
+              title: "White to move: pin the knight",
+              pattern: "Pin",
+              story: "A pinned piece is stuck because moving it would expose something more valuable.",
+              hint: "Use the bishop to aim through the knight toward the king.",
+              answer: "c4b5",
+              explain: "Bc4-b5 pins the knight on c6 to the king on e8. The knight becomes hard to move.",
+              pieces: { e1: "K", c4: "B", d1: "Q", e8: "k", c6: "n", d7: "q" }
+            },
+            {
+              title: "White to move: skewer the king",
+              pattern: "Skewer",
+              story: "A skewer attacks a valuable piece first. When it moves, another piece behind it is lost.",
+              hint: "Put the rook on the open e-file.",
+              answer: "a1e1",
+              explain: "Ra1-e1+ checks the king on e8. When the king moves, the queen on e7 is behind it.",
+              pieces: { g1: "K", a1: "R", e8: "k", e7: "q", a8: "r" }
+            },
+            {
+              title: "White to move: remove the defender",
+              pattern: "Defender",
+              story: "Sometimes the smartest move is to capture the piece that protects the target.",
+              hint: "The black knight protects the bishop. Can your queen capture that defender?",
+              answer: "d1d7",
+              explain: "Qd1-d7+ removes a key defender and gives check. White wins a strong piece and keeps the attack.",
+              pieces: { g1: "K", d1: "Q", c4: "B", g5: "N", g8: "k", d7: "n", c8: "b", h7: "p" }
+            }
+          ];
 
-          // SECTION B: Pick a random board square.
-          function randomSpot() {
+          let puzzleNumber = 0;
+          let selected = "";
+          let chosenMove = "";
+          let score = 0;
+          let streak = 0;
+
+          // SECTION C: Turn a board square like "e4" into row and column numbers.
+          function squareToPoint(square) {
+            const files = "abcdefgh";
             return {
-              x: Math.floor(Math.random() * size),
-              y: Math.floor(Math.random() * size)
+              x: files.indexOf(square[0]),
+              y: 8 - Number(square[1])
             };
           }
 
-          // SECTION C: Check if two pieces are on the same square.
-          function sameSpot(a, b) {
-            return a.x === b.x && a.y === b.y;
+          // SECTION D: Turn row and column numbers back into a board square.
+          function pointToSquare(x, y) {
+            const files = "abcdefgh";
+            return files[x] + (8 - y);
           }
 
-          // SECTION D: Start or restart the game.
-          function newGame() {
-            knight = { x: 3, y: 6 };
-            star = randomSpot();
-            pawns = [
-              { x: 0, y: 0 },
-              { x: 4, y: 1 },
-              { x: 7, y: 2 }
-            ];
-            score = 0;
-            lives = 3;
-            speed = 1;
-            clearInterval(timer);
-            timer = setInterval(movePawns, 650);
-            message.textContent = "Collect stars. Dodge the pawns.";
-            drawBoard();
-          }
-
-          // SECTION E: Draw the 8 by 8 board.
+          // SECTION E: Draw the board from the current puzzle.
           function drawBoard() {
             board.innerHTML = "";
+            const puzzle = puzzles[puzzleNumber];
 
-            for (let y = 0; y < size; y++) {
-              for (let x = 0; x < size; x++) {
+            for (let y = 0; y < 8; y++) {
+              for (let x = 0; x < 8; x++) {
+                const name = pointToSquare(x, y);
                 const square = document.createElement("div");
                 square.className = "square " + ((x + y) % 2 === 0 ? "light" : "dark");
+                square.onclick = function() {
+                  chooseSquare(name);
+                };
 
-                if (sameSpot(knight, { x: x, y: y })) {
-                  square.textContent = "N";
-                  square.classList.add("knight");
-                } else if (sameSpot(star, { x: x, y: y })) {
-                  square.textContent = "*";
-                  square.classList.add("star");
-                } else {
-                  for (const pawn of pawns) {
-                    if (sameSpot(pawn, { x: x, y: y })) {
-                      square.textContent = "P";
-                      square.classList.add("pawn");
-                    }
-                  }
+                if (name === selected) {
+                  square.classList.add("selected");
+                }
+                if (chosenMove.slice(2, 4) === name) {
+                  square.classList.add("target");
+                }
+                if (chosenMove === puzzle.answer && puzzle.answer.includes(name)) {
+                  square.classList.add("last");
                 }
 
+                if (puzzle.pieces[name]) {
+                  const piece = puzzle.pieces[name];
+                  square.textContent = piece;
+                  square.classList.add(piece === piece.toUpperCase() ? "white-piece" : "black-piece");
+                }
+
+                const coords = document.createElement("span");
+                coords.className = "coords";
+                coords.textContent = name;
+                square.appendChild(coords);
                 board.appendChild(square);
               }
             }
+          }
 
+          // SECTION F: Load one puzzle into the lesson panel.
+          function showPuzzle() {
+            const puzzle = puzzles[puzzleNumber];
+            selected = "";
+            chosenMove = "";
+            titleText.textContent = puzzle.title;
+            storyText.textContent = puzzle.story;
+            patternText.textContent = puzzle.pattern;
+            moveText.textContent = "none";
+            message.textContent = "Click a piece, then click its best square.";
+            explain.textContent = "";
+            levelText.textContent = puzzleNumber + 1;
             scoreText.textContent = score;
-            livesText.textContent = lives;
-            speedText.textContent = speed;
-          }
-
-          // SECTION F: Move the knight with buttons or arrow keys.
-          function moveKnight(dx, dy) {
-            knight.x = Math.max(0, Math.min(size - 1, knight.x + dx));
-            knight.y = Math.max(0, Math.min(size - 1, knight.y + dy));
-            checkGame();
+            streakText.textContent = streak;
+            meterFill.style.width = ((puzzleNumber) / puzzles.length * 100) + "%";
             drawBoard();
           }
 
-          // SECTION G: Move every pawn toward the knight.
-          function movePawns() {
-            for (const pawn of pawns) {
-              if (Math.random() < 0.5) {
-                pawn.x += Math.sign(knight.x - pawn.x);
+          // SECTION G: Click logic. First click chooses a piece. Second click chooses its target.
+          function chooseSquare(squareName) {
+            const puzzle = puzzles[puzzleNumber];
+
+            if (selected === "") {
+              if (puzzle.pieces[squareName]) {
+                selected = squareName;
+                chosenMove = "";
+                moveText.textContent = selected + " -> ?";
+                message.textContent = "Now choose the square for that piece.";
               } else {
-                pawn.y += Math.sign(knight.y - pawn.y);
+                message.textContent = "Choose a square that has a piece.";
               }
+            } else {
+              chosenMove = selected + squareName;
+              moveText.textContent = selected + " -> " + squareName;
+              message.textContent = "Good. Now press Check Move.";
             }
 
-            checkGame();
             drawBoard();
           }
 
-          // SECTION H: Handle stars, hits, and game over.
-          function checkGame() {
-            if (sameSpot(knight, star)) {
-              score += 10;
-              star = randomSpot();
-              message.textContent = "Nice move!";
+          // SECTION H: Check the student's move.
+          function checkAnswer() {
+            const puzzle = puzzles[puzzleNumber];
 
-              if (score % 30 === 0) {
-                speed += 1;
-                clearInterval(timer);
-                timer = setInterval(movePawns, Math.max(180, 650 - speed * 70));
-              }
-            }
-
-            for (const pawn of pawns) {
-              if (sameSpot(knight, pawn)) {
-                lives -= 1;
-                knight = { x: 3, y: 6 };
-                message.textContent = "A pawn tagged you!";
-              }
-            }
-
-            if (lives <= 0) {
-              clearInterval(timer);
-              message.textContent = "Game over. Press New Game.";
+            if (chosenMove === puzzle.answer) {
+              score += 10 + streak * 2;
+              streak += 1;
+              message.textContent = "Correct. That is a smart chess idea.";
+              explain.textContent = puzzle.explain;
+              scoreText.textContent = score;
+              streakText.textContent = streak;
+              meterFill.style.width = ((puzzleNumber + 1) / puzzles.length * 100) + "%";
+            } else if (chosenMove === "") {
+              message.textContent = "Pick a move first.";
+            } else {
+              streak = 0;
+              message.textContent = "Not quite. Try to find the pattern: " + puzzle.pattern + ".";
+              explain.textContent = "Use the hint if you are stuck.";
+              streakText.textContent = streak;
             }
           }
 
-          // SECTION I: Listen for keyboard arrows.
-          document.addEventListener("keydown", function(event) {
-            if (event.key === "ArrowUp") {
-              moveKnight(0, -1);
-            } else if (event.key === "ArrowDown") {
-              moveKnight(0, 1);
-            } else if (event.key === "ArrowLeft") {
-              moveKnight(-1, 0);
-            } else if (event.key === "ArrowRight") {
-              moveKnight(1, 0);
-            }
-          });
+          // SECTION I: Give a small clue, but not the full answer.
+          function showHint() {
+            message.textContent = puzzles[puzzleNumber].hint;
+          }
 
-          newGame();
+          // SECTION J: Show the answer and explain why it works.
+          function showAnswer() {
+            const puzzle = puzzles[puzzleNumber];
+            selected = puzzle.answer.slice(0, 2);
+            chosenMove = puzzle.answer;
+            moveText.textContent = selected + " -> " + puzzle.answer.slice(2, 4);
+            message.textContent = "Answer shown. Study the idea, then try the next one.";
+            explain.textContent = puzzle.explain;
+            drawBoard();
+          }
+
+          // SECTION K: Move to the next puzzle.
+          function nextPuzzle() {
+            if (puzzleNumber < puzzles.length - 1) {
+              puzzleNumber += 1;
+              showPuzzle();
+            } else {
+              message.textContent = "Lab complete. Final IQ score: " + score + ".";
+              explain.textContent = "Restart the lab to practice the patterns again.";
+              meterFill.style.width = "100%";
+            }
+          }
+
+          // SECTION L: Start over from puzzle one.
+          function resetLab() {
+            puzzleNumber = 0;
+            selected = "";
+            chosenMove = "";
+            score = 0;
+            streak = 0;
+            showPuzzle();
+          }
+
+          showPuzzle();
         </script>
       </body>
     </html>

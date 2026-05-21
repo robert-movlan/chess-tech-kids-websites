@@ -2,7 +2,7 @@
 
 This is a beginner-friendly Python project for kids ages 6-12. It creates two simple websites:
 
-- `/chess` for a fast moving chess-themed game called Knight Dash
+- `/chess` for a chess puzzle game called Chess IQ Lab
 - `/tech` for a Tech Lab page
 
 The project uses only Python's built-in `http.server` module, so there are no extra packages to install.
@@ -73,17 +73,18 @@ Hello, Ada!
 
 The project now uses `CHESS_PAGE = chess_game()`.
 
-That means the chess page is special. It is not just a fact page. It has HTML, CSS, and JavaScript for a playable game.
+That means the chess page is special. It is not just a fact page. It has HTML, CSS, and JavaScript for a playable puzzle board.
 
-## Knight Dash Game Notes
+## Chess IQ Lab Notes
 
 ### Game Goal
 
-The player controls the knight marked `N`.
+The player solves chess thinking puzzles.
 
-- Collect `*` stars to gain points.
-- Dodge `P` pawns.
-- The game gets faster as the score grows.
+- Click a piece.
+- Click the best target square.
+- Press `Check Move`.
+- Learn the pattern: fork, checkmate, pin, skewer, or defender.
 
 ### `def chess_game():`
 
@@ -91,35 +92,39 @@ This Python function returns one big HTML page. Inside the page are three web la
 
 - HTML makes the buttons, score, and board.
 - CSS makes the board colorful.
-- JavaScript makes the game move.
+- JavaScript checks the puzzle answers.
 
 ### `const board = document.getElementById("board")`
 
-JavaScript uses this line to find the board on the page. After it finds the board, it can add squares and pieces to it.
+JavaScript uses this line to find the board on the page. After it finds the board, it can draw the 64 squares and the chess pieces.
 
-### `let knight`, `let star`, and `let pawns`
+### `const puzzles = [...]`
 
-These variables remember where the game pieces are.
+This list stores the chess puzzles.
 
-- `knight` stores the player's square.
-- `star` stores the point square.
-- `pawns` stores a list of moving enemies.
+Each puzzle has:
 
-### `function randomSpot()`
+- a title
+- a pattern name
+- a short story
+- a hint
+- the correct answer
+- an explanation
+- the pieces on the board
 
-This function picks a random square on the board. It uses `Math.random()` to choose a number.
+### `pieces: { e1: "K", f7: "N" }`
 
-### `function sameSpot(a, b)`
+This means, "put a white king on e1 and a white knight on f7."
 
-This checks whether two pieces are standing on the same square.
+Uppercase letters are White pieces. Lowercase letters are Black pieces.
 
-### `function newGame()`
+### `answer: "f7d6"`
 
-This resets the score, lives, knight, star, and pawns. It also starts the pawn timer.
+This means the correct move starts on `f7` and ends on `d6`.
 
-### `setInterval(movePawns, 650)`
+### `function squareToPoint(square)`
 
-This tells JavaScript to run `movePawns` again and again. That is what makes the game feel alive.
+This turns a chess square like `e4` into grid numbers the computer can use.
 
 ### `function drawBoard()`
 
@@ -130,30 +135,32 @@ This redraws the chess board. It uses two loops:
 
 Together, they make 64 squares.
 
-### `function moveKnight(dx, dy)`
+### `function chooseSquare(squareName)`
 
-This moves the knight.
+This handles clicking.
 
-- `dx` means left or right.
-- `dy` means up or down.
+- The first click chooses the piece.
+- The second click chooses where the piece should go.
 
-The code uses `Math.max` and `Math.min` to keep the knight inside the board.
+### `function checkAnswer()`
 
-### `function movePawns()`
+This compares the student's move to the correct answer.
 
-This moves each pawn closer to the knight. Sometimes the pawn moves sideways. Sometimes it moves up or down.
+- Correct moves earn IQ points.
+- Correct streaks earn bonus points.
+- Wrong moves reset the streak but let the student try again.
 
-### `function checkGame()`
+### `function showHint()`
 
-This checks the rules:
+This shows a clue without giving away the full answer.
 
-- Did the knight collect a star?
-- Did a pawn tag the knight?
-- Did the player run out of lives?
+### `function showAnswer()`
 
-### `document.addEventListener("keydown", ...)`
+This shows the correct move and explains the chess idea.
 
-This listens for keyboard presses. When the player presses an arrow key, the knight moves.
+### `function nextPuzzle()`
+
+This moves the class to the next chess challenge.
 
 ### `TECH_PAGE = page(...)`
 
@@ -198,6 +205,6 @@ This keeps the website awake until we stop it.
 ## Student Challenges
 
 1. Change the chess page color.
-2. Change how many lives the player starts with.
+2. Add a new puzzle to the `puzzles` list.
 3. Add one new tech fact.
-4. Make the pawns even faster.
+4. Change how many IQ points a correct answer gives.
