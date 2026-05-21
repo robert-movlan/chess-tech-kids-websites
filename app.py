@@ -152,5 +152,8 @@ class WebsiteHandler(BaseHTTPRequestHandler):
 # This only runs when we start the file directly with: python app.py
 if __name__ == "__main__":
     server = HTTPServer((HOST, PORT), WebsiteHandler)
-    print(f"Visit http://{HOST}:{PORT}/chess or http://{HOST}:{PORT}/tech")
+    try:
+        print(f"Visit http://{HOST}:{PORT}/chess or http://{HOST}:{PORT}/tech")
+    except OSError:
+        pass
     server.serve_forever()

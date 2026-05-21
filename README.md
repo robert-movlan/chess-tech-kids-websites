@@ -105,6 +105,10 @@ Computers send bytes over the internet. This turns our text into bytes.
 
 This means "only start the server when this file is run directly."
 
+### `try` and `except`
+
+This prints the website address when Python has a normal terminal. If Python is started in the background and cannot print, `except` keeps the website running.
+
 ### `server.serve_forever()`
 
 This keeps the website awake until we stop it.
