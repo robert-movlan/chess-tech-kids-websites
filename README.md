@@ -2,7 +2,7 @@
 
 This is a beginner-friendly Python project for kids ages 6-12. It creates two simple websites:
 
-- `/chess` for a Chess Club page
+- `/chess` for a fast moving chess-themed game called Knight Dash
 - `/tech` for a Tech Lab page
 
 The project uses only Python's built-in `http.server` module, so there are no extra packages to install.
@@ -29,7 +29,7 @@ This line borrows web server tools that are already inside Python.
 - `HTTPServer` listens for browser visits.
 - `BaseHTTPRequestHandler` helps us decide what to send back.
 
-### `HOST = "localhost"` and `PORT = 8000`
+### `HOST = "127.0.0.1"` and `PORT = 8000`
 
 These variables tell Python where the website lives on our computer.
 
@@ -69,9 +69,91 @@ Python prints:
 Hello, Ada!
 ```
 
-### `CHESS_PAGE = page(...)`
+### `CHESS_PAGE = chess_game()`
 
-This creates the chess website by calling the `page` function.
+The project now uses `CHESS_PAGE = chess_game()`.
+
+That means the chess page is special. It is not just a fact page. It has HTML, CSS, and JavaScript for a playable game.
+
+## Knight Dash Game Notes
+
+### Game Goal
+
+The player controls the knight marked `N`.
+
+- Collect `*` stars to gain points.
+- Dodge `P` pawns.
+- The game gets faster as the score grows.
+
+### `def chess_game():`
+
+This Python function returns one big HTML page. Inside the page are three web languages:
+
+- HTML makes the buttons, score, and board.
+- CSS makes the board colorful.
+- JavaScript makes the game move.
+
+### `const board = document.getElementById("board")`
+
+JavaScript uses this line to find the board on the page. After it finds the board, it can add squares and pieces to it.
+
+### `let knight`, `let star`, and `let pawns`
+
+These variables remember where the game pieces are.
+
+- `knight` stores the player's square.
+- `star` stores the point square.
+- `pawns` stores a list of moving enemies.
+
+### `function randomSpot()`
+
+This function picks a random square on the board. It uses `Math.random()` to choose a number.
+
+### `function sameSpot(a, b)`
+
+This checks whether two pieces are standing on the same square.
+
+### `function newGame()`
+
+This resets the score, lives, knight, star, and pawns. It also starts the pawn timer.
+
+### `setInterval(movePawns, 650)`
+
+This tells JavaScript to run `movePawns` again and again. That is what makes the game feel alive.
+
+### `function drawBoard()`
+
+This redraws the chess board. It uses two loops:
+
+- one loop for rows
+- one loop for columns
+
+Together, they make 64 squares.
+
+### `function moveKnight(dx, dy)`
+
+This moves the knight.
+
+- `dx` means left or right.
+- `dy` means up or down.
+
+The code uses `Math.max` and `Math.min` to keep the knight inside the board.
+
+### `function movePawns()`
+
+This moves each pawn closer to the knight. Sometimes the pawn moves sideways. Sometimes it moves up or down.
+
+### `function checkGame()`
+
+This checks the rules:
+
+- Did the knight collect a star?
+- Did a pawn tag the knight?
+- Did the player run out of lives?
+
+### `document.addEventListener("keydown", ...)`
+
+This listens for keyboard presses. When the player presses an arrow key, the knight moves.
 
 ### `TECH_PAGE = page(...)`
 
@@ -116,6 +198,6 @@ This keeps the website awake until we stop it.
 ## Student Challenges
 
 1. Change the chess page color.
-2. Add one new chess fact.
+2. Change how many lives the player starts with.
 3. Add one new tech fact.
-4. Make a third page called `/robots`.
+4. Make the pawns even faster.
